@@ -8,7 +8,6 @@
  
  import UIKit
  import OpenTok
- import SwiftyJSON
  
  struct SignalTypes {
     static let SIGNAL_TYPE_CHAT = "msg";
@@ -198,7 +197,7 @@
     
     func session(_ session: OTSession, receivedSignalType type: String?, from connection: OTConnection?, with string: String?) {
         print(string ?? "")
-        let json = JSON(parseJSON: string ?? "")
+        let json = convertStringToDictionary(string)
         if type == SignalTypes.SIGNAL_TYPE_CHAT {
             var fromSelf = false
             if connection?.connectionId == session.connection?.connectionId {
@@ -294,5 +293,15 @@
         catch _ as NSError {
             return ""
         }
+    }
+    func convertStringToDictionary(text: String) -> [String:AnyObject]? {
+        if let data = text.data(using: String.Encoding.utf8) {
+            do {
+                return try JSONSerialization.jsonObject(with: data, options: []) as? [String:AnyObject]
+            } catch let error as NSError {
+                print(error)
+            }
+        }
+        return nil
     }
  }
